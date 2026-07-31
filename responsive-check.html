@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taj Home Caterers — responsive check</title>
+<style>
+:root{
+  --clay-900:#5c2110; --clay:#8f3519; --gold:#f2c14e; --gold-300:#f7d98a;
+  --cream:#fdf1e3; --ivory:#fff9f0; --line:#edd3b6; --ink:#3a241a; --ink-soft:#7a5a44;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:14px;}
+header{position:sticky;top:0;z-index:5;background:var(--clay-900);color:#fbe9dc;padding:14px 20px;box-shadow:0 4px 20px rgba(74,24,10,.4);}
+header h1{margin:0 0 4px;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-300);font-weight:600;}
+header p{margin:0;font-size:12.5px;opacity:.85;line-height:1.6;}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center;}
+.controls label{font-size:12px;opacity:.8;display:flex;align-items:center;gap:6px;}
+.controls input[type=text]{width:130px;padding:6px 9px;border-radius:4px;border:1px solid rgba(242,193,78,.35);background:rgba(0,0,0,.2);color:#fbe9dc;font:inherit;font-size:12px;}
+.controls button{padding:7px 14px;border:1px solid rgba(242,193,78,.4);background:transparent;color:#fbe9dc;border-radius:100px;cursor:pointer;font:inherit;font-size:12px;}
+.controls button:hover{border-color:var(--gold);color:#fff;}
+.controls button.on{background:var(--gold);color:var(--clay-900);border-color:var(--gold);font-weight:600;}
+
+.strip{display:flex;gap:20px;padding:20px;overflow-x:auto;align-items:flex-start;}
+.device{flex:none;}
+.device h2{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.device h2 b{color:var(--clay);font-weight:600;}
+.device h2 span{font-weight:400;opacity:.6;font-size:11px;}
+.frame{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 6px 24px rgba(58,36,26,.1);}
+.frame iframe{display:block;border:0;background:#fff;}
+.hint{padding:0 20px 28px;color:var(--ink-soft);font-size:12.5px;line-height:1.7;max-width:900px;}
+.hint b{color:var(--clay-900);}
+.hint code{background:var(--ivory);border:1px solid var(--line);border-radius:3px;padding:1px 5px;font-size:11.5px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Responsive check</h1>
+  <p>Every frame loads the real <code style="color:var(--gold-300)">index.html</code> at a true device size and aspect ratio, from a folded phone at 320px to a 2560px ultrawide. Scroll inside any frame; the layout should reflow with no sideways scroll at any ratio.</p>
+  <div class="controls">
+    <button data-jump="#top" class="on">Top</button>
+    <button data-jump="#services">Services</button>
+    <button data-jump="#sadhya">The Feast</button>
+    <button data-jump="#gallery">Gallery</button>
+    <button data-jump="#menus">Menus</button>
+    <button data-jump="#contact">Contact</button>
+    <label>Custom width <input type="text" id="cw" value="414" /> px</label>
+    <button id="addBtn">Add frame</button>
+  </div>
+</header>
+
+<div class="strip" id="strip"></div>
+
+<div class="hint">
+  <p><b>Read the badge.</b> Each frame runs a layout self-test and prints its result top-left. A green bar and <b>ALL PASS</b> means the leaf has real size, every dish is drawn and sized, the dish key matches the leaf, and nothing scrolls sideways. A red bar names the failing check. Scroll or resize and the badge re-measures.</p>
+  <p>The ratio is shown next to each size. Add a custom width to test anything not listed.</p>
+</div>
+
+<script>
+const DEVICES = [
+  { name:'Folded phone',     w:320,  h:653,  r:'0.49' },
+  { name:'iPhone SE',        w:375,  h:667,  r:'0.56' },
+  { name:'iPhone 14',        w:390,  h:844,  r:'0.46' },
+  { name:'Pixel 8 Pro',      w:412,  h:892,  r:'0.46' },
+  { name:'iPhone Pro Max',   w:430,  h:932,  r:'0.46' },
+  { name:'Phone landscape',  w:844,  h:390,  r:'2.16' },
+  { name:'Unfolded / square',w:673,  h:841,  r:'0.80' },
+  { name:'iPad mini',        w:768,  h:1024, r:'0.75' },
+  { name:'iPad landscape',   w:1024, h:768,  r:'1.33' },
+  { name:'iPad Pro',         w:1024, h:1366, r:'0.75' },
+  { name:'Laptop',           w:1280, h:800,  r:'1.60' },
+  { name:'Desktop',          w:1600, h:900,  r:'1.78' },
+  { name:'Ultrawide',        w:2560, h:1080, r:'2.37' }
+];
+
+const strip = document.getElementById('strip');
+const SCALE = 0.5;   // shrink so several fit on screen at once
+
+function addFrame(name, w, h, r){
+  const d = document.createElement('div');
+  d.className = 'device';
+  d.innerHTML = `
+    <h2><b>${name}</b><span>${w}×${h}${r?' · '+r:''}</span></h2>
+    <div class="frame" style="width:${Math.round(w*SCALE)}px;height:${Math.round(h*SCALE)}px">
+      <iframe src="index.html?selftest#sadhya" width="${w}" height="${h}"
+        style="transform:scale(${SCALE});transform-origin:0 0"></iframe>
+    </div>`;
+  strip.appendChild(d);
+}
+
+DEVICES.forEach(d => addFrame(d.name, d.w, d.h, d.r));
+
+document.querySelectorAll('[data-jump]').forEach(btn =>
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-jump]').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    const hash = btn.dataset.jump;
+    document.querySelectorAll('#strip iframe').forEach(f => {
+      f.src = 'index.html?selftest' + (hash === '#top' ? '' : hash);
+    });
+  })
+);
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  const w = parseInt(document.getElementById('cw').value, 10);
+  if (w > 200 && w < 4000) addFrame('Custom', w, 800, (w/800).toFixed(2));
+});
+</script>
+</body>
+</html>
